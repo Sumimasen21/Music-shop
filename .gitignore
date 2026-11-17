@@ -46,3 +46,6 @@ dist/
 .env
 
 /src/generated/prisma
+
+# Database backups can contain accounts and personal data.
+/backup*.sql
