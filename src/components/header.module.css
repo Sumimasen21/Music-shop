@@ -1,0 +1,109 @@
+.button {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 8px 14px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background-color: transparent;
+  color: #d4d4d8;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    color 0.2s,
+    background-color 0.2s,
+    border-color 0.2s;
+}
+
+.button:hover {
+  border-color: rgba(212, 175, 55, 0.2);
+  background-color: rgba(212, 175, 55, 0.08);
+  color: #e5c158;
+}
+
+.button:focus-visible {
+  outline: 2px solid #e5c158;
+  outline-offset: 4px;
+}
+
+.iconButton {
+  composes: button;
+  position: relative;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+}
+
+.promoButton {
+  composes: button;
+  min-height: 24px;
+  padding: 2px 8px;
+  font-size: 10px;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 80px;
+  padding-block: 12px;
+}
+
+.desktopNavigation,
+.mobileNavigation,
+.actions {
+  align-items: center;
+  gap: 12px;
+}
+
+.desktopNavigation {
+  display: none;
+}
+
+.mobileNavigation {
+  display: flex;
+  overflow-x: auto;
+  padding-block: 4px 12px;
+}
+
+.actions {
+  display: flex;
+  flex-shrink: 0;
+}
+
+@media (min-width: 640px) {
+  .row {
+    flex-wrap: nowrap;
+    gap: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .desktopNavigation {
+    display: flex;
+  }
+
+  .mobileNavigation {
+    display: none;
+  }
+}
+
+@media (max-width: 639px) {
+  .iconButton {
+    min-height: 36px;
+    width: 36px;
+    height: 36px;
+  }
+
+  .promoButton {
+    display: none;
+  }
+}

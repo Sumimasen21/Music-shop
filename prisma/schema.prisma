@@ -1,0 +1,244 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Перечисления (Enums) для жесткого контроля значений
+enum Role {
+  USER
+  ADMIN
+}
+
+enum ProductStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+  REFUND_PENDING
+  REFUNDED
+}
+
+enum OrderStatus {
+  PENDING   // Ожидает оплаты
+  PAID      // Оплачен
+  SHIPPED   // Передан в доставку
+  DELIVERED // Доставлен
+  CANCELLED // Отменен
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String?  // Необязательно, если юзер войдет через Google/GitHub
+  name      String?
+  role      Role     @default(USER)
+  phone String?
+  address String?
+  sessionVersion Int @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cart   Cart?
+  orders Order[]
+  notifications Notification[]
+  reviews Review[]
+  questions ProductQuestion[]
+  addresses SavedAddress[]
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String
+  slug     String    @unique
+  imageUrl String?   // Картинка категории для главной страницы
+  products Product[]
+}
+
+model SavedAddress {
+  id String @id @default(cuid())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label String
+  recipient String
+  phone String
+  address String
+  isDefault Boolean @default(false)
+  createdAt DateTime @default(now())
+  @@index([userId])
+}
+
+model Brand {
+  id       Int       @id @default(autoincrement())
+  name     String
+  slug     String    @unique
+  logoUrl  String?   // Логотип бренда (Fender, Yamaha и т.д.)
+  products Product[]
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  title       String
+  slug        String   @unique // Например: fender-player-stratocaster-black
+  description String   @db.Text // Подробное описание инструмента
+  price       Int      // Цена в рублях (или копейках)
+  oldPrice    Int?     // Старая цена (если заполнена — рисуем бейдж "Скидка")
+  stock       Int      @default(0)
+  images      String[] // Массив ссылок на фото (первое фото — главное)
+  specs       Json?    // Характеристики: {"strings": 6, "body": "Ольха", "color": "Черный"}
+  isFeatured  Boolean  @default(false) // Показывать ли в блоке "Хиты продаж" на главной
+  status ProductStatus @default(PUBLISHED)
+  relatedIds Int[] @default([])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  brandId Int
+  brand   Brand @relation(fields: [brandId], references: [id])
+
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+  reviews Review[]
+  questions ProductQuestion[]
+}
+
+model Cart {
+  id        String     @id @default(cuid())
+  userId    String     @unique
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     CartItem[]
+  updatedAt DateTime   @updatedAt
+  mergedTokens String[] @default([])
+}
+
+model CartItem {
+  id        Int     @id @default(autoincrement())
+  quantity  Int     @default(1)
+  
+  cartId    String
+  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  
+  productId Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  // Гарантирует, что один и тот же товар не продублируется в корзине двумя строками
+  @@unique([cartId, productId])
+}
+
+model Order {
+  id          String      @id @default(cuid())
+  requestId   String?     @unique
+  totalPrice  Int
+  status      OrderStatus @default(PENDING)
+  address     String?     // Адрес доставки
+  phone       String?     // Телефон получателя
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  paymentStatus PaymentStatus @default(UNPAID)
+  reservedUntil DateTime?
+  deliveryMethod String @default("COURIER")
+  deliveryPrice Int?
+  deliveryConfirmed Boolean @default(false)
+  recipient String?
+  customerComment String?
+  trackingNumber String?
+  managerComment String?
+
+  userId String
+  user   User        @relation(fields: [userId], references: [id])
+  items  OrderItem[]
+  events OrderEvent[]
+  notifications Notification[]
+
+  @@index([status, reservedUntil])
+}
+
+model OrderItem {
+  id              Int @id @default(autoincrement())
+  quantity        Int
+  priceAtPurchase Int // Фиксируем цену на момент покупки
+  titleAtPurchase String?
+  skuAtPurchase String?
+
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+model AuthAttempt {
+  id String @id
+  attempts Int @default(0)
+  createdAt DateTime @default(now())
+  @@index([createdAt])
+}
+
+model Media {
+  id String @id @default(cuid())
+  data Bytes
+  createdAt DateTime @default(now())
+}
+
+model OrderEvent {
+  id String @id @default(cuid())
+  orderId String
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  message String
+  createdAt DateTime @default(now())
+  @@index([orderId, createdAt])
+}
+
+model Notification {
+  id String @id @default(cuid())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderId String
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  message String
+  readAt DateTime?
+  createdAt DateTime @default(now())
+  @@index([userId, createdAt])
+}
+
+enum ModerationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Review {
+  id String @id @default(cuid())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId Int
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  rating Int
+  text String
+  status ModerationStatus @default(PENDING)
+  createdAt DateTime @default(now())
+  @@unique([userId, productId])
+  @@index([productId, status])
+}
+
+model ProductQuestion {
+  id String @id @default(cuid())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId Int
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  text String
+  answer String?
+  status ModerationStatus @default(PENDING)
+  createdAt DateTime @default(now())
+  @@index([productId, status])
+}

@@ -1,0 +1,173 @@
+.carousel {
+  position: relative;
+  margin-top: 28px;
+  overflow: hidden;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 16px;
+  background: #161619;
+}
+
+.viewport {
+  display: grid;
+}
+
+.slide {
+  grid-area: 1 / 1;
+  min-width: 0;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 700ms ease,
+    visibility 700ms;
+}
+
+.active {
+  z-index: 1;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.panel {
+  display: grid;
+  min-height: 550px;
+  height: 100%;
+}
+
+.image {
+  position: relative;
+  min-width: 0;
+  min-height: 288px;
+}
+
+.navigation {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  pointer-events: none;
+}
+
+.controlButton {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 50%;
+  background: rgba(18, 18, 20, 0.75);
+  color: #f4f4f5;
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 200ms,
+    color 200ms,
+    background-color 200ms,
+    border-color 200ms;
+}
+
+.carousel:hover .controlButton,
+.carousel:focus-within .controlButton {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.controlButton:hover {
+  border-color: #d4af37;
+  background: rgba(18, 18, 20, 0.9);
+  color: #e5c158;
+}
+
+.controlButton:focus-visible {
+  outline: 2px solid #d4af37;
+  outline-offset: 3px;
+}
+
+.indicators {
+  position: absolute;
+  z-index: 3;
+  bottom: 14px;
+  left: 50%;
+  display: flex;
+  gap: 8px;
+  max-width: calc(100% - 48px);
+  transform: translateX(-50%);
+}
+
+.indicator {
+  display: flex;
+  align-items: center;
+  width: 64px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+}
+
+.track {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  width: 100%;
+  height: 3px;
+  border-radius: 4px;
+  background: rgba(161, 161, 170, 0.4);
+}
+
+.fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: #d4af37;
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+.filling {
+  animation-name: fillProgress;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+.indicator:hover .track {
+  background: rgba(212, 175, 55, 0.35);
+}
+.indicator:focus-visible {
+  outline: 2px solid #d4af37;
+  outline-offset: 2px;
+}
+
+@keyframes fillProgress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@media (min-width: 1024px) {
+  .panel {
+    grid-template-columns: 1.1fr 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .filling {
+    animation: none;
+    transform: scaleX(1);
+  }
+  .slide,
+  .controlButton {
+    transition: none;
+  }
+}

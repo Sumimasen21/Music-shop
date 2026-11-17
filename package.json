@@ -3,15 +3,36 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "node scripts/server.mjs dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
+    "start": "node scripts/server.mjs start",
+    "lint": "eslint",
+    "postinstall": "prisma generate",
+    "setup:env": "node scripts/setup-env.mjs",
+    "db:seed": "prisma db seed",
+    "admin:grant": "tsx scripts/make-admin.mts",
+    "test:integration": "node scripts/verify.mjs",
+    "orders:worker": "tsx scripts/reservation-worker.mts",
+    "format": "prettier --write src scripts prisma/seed.ts next.config.ts prisma.config.ts",
+    "contract:emit": "prisma contract emit"
   },
   "dependencies": {
+    "@prisma/client": "^6.19.3",
+    "@prisma/orm-postgres": "8.0.0-rc.23",
+    "@radix-ui/react-slot": "^1.5.0",
+    "bcryptjs": "^3.0.3",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "dotenv": "^18.0.10",
+    "lucide-react": "^1.73.0",
     "next": "16.4.6",
+    "next-auth": "^5.0.0-beta.32",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "sharp": "^0.35.5",
+    "tailwind-merge": "^3.7.0",
+    "zod": "^4.6.7",
+    "zustand": "^5.1.0"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "4.3.3",
@@ -21,7 +42,10 @@
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.4.6",
+    "prettier": "^3.10.1",
+    "prisma": "^6.19.3",
     "tailwindcss": "4.3.3",
+    "tsx": "^4.23.15",
     "typescript": "^5"
   }
 }

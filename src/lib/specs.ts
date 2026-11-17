@@ -1,0 +1,16 @@
+export const specLabels: Record<string, string> = {
+  strings: "Количество струн",
+  body: "Корпус",
+  neck: "Гриф",
+  pickups: "Звукосниматели",
+  color: "Цвет",
+  keys: "Количество клавиш",
+  polyphony: "Полифония",
+  weight: "Вес",
+  type: "Тип",
+  pattern: "Направленность",
+  connector: "Разъём",
+  power: "Мощность",
+  woofer: "НЧ-динамик",
+  inputs: "Входы",
+};
